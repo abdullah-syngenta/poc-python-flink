@@ -1,0 +1,23 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[requires]
+python_version = "3.8"
+
+[packages]
+apache-flink = "==1.15.2"
+jsonpath-ng = "==1.5.3"
+pytz = "==2021.1"
+python-dateutil = "*"
+
+[dev-packages]
+
+[scripts]
+start = "python main.py --input=f:\\\\projects\\\\syngenta\\\\flink\\\\basic_operations\\\\input\\\\input_data.txt"
+start-kafka = "python main.py --isKafka True"
+test = "python -m unittest discover"
+coverage = "coverage run --source application/ -m  pytest tests/application --cov=application --junitxml ./coverage/reports/xunit.xml --cov-report xml:./coverage/reports/coverage.xml --html=./coverage/unit-test/index.html --self-contained-html --cov-report html:./coverage -p no:warnings -o log_cli=true"
+lint = "pylint --load-plugins pylint_quotes --fail-under 9 application"
+local = "docker-compose -f tests/local/databases.yml up --remove-orphans"
