@@ -28,21 +28,15 @@ def arable_translate(input_path, output_path, isKafka):
         .map(lambda a: data_serialize(a), Types.STRING())
 
     emit_results(ds, output_path)
-
     env.execute()
-
-
-def split(raw_data_string):
-    print('raw_data_string', raw_data_string)
-    for raw_object in json.loads(raw_data_string):
-        yield raw_object
 
 
 def translate(raw_data_string):
     try:
-        print('raw_data_string', raw_data_string)
+        print('message received')
         for raw_object in json.loads(raw_data_string):
-            obs_collection, obs_collection_id, observations = Normalizer().normalize('hourly', 'acc1', 'asset1', raw_object)
+            obs_collection, obs_collection_id, observations = Normalizer().normalize('hourly', 'acc1', 'asset1',
+                                                                                     raw_object)
             print('normalized')
             yield observations, obs_collection
 
@@ -58,9 +52,7 @@ def data_serialize(data):
 def emit_results(ds, output_path):
     if output_path is not None:
         ds.sink_to(
-            sink=FileSink.for_row_format(
-                base_path=output_path,
-                encoder=Encoder.simple_string_encoder("utf-8"))
+            sink=FileSink.for_row_format(base_path=output_path, encoder=Encoder.simple_string_encoder("utf-8"))
             .with_output_file_config(
                 OutputFileConfig.builder()
                 .with_part_prefix("prefix")
@@ -90,9 +82,7 @@ def define_source(env, input_path, is_kafka):
     elif is_kafka:
         kafka_props = {'bootstrap.servers': 'localhost:9092', 'group.id': 'pyflink-e2e-source'}
         kafka_consumer = FlinkKafkaConsumer("source_topic", SimpleStringSchema(), kafka_props)
-
         watermark_strategy = WatermarkStrategy.for_bounded_out_of_orderness(Duration.of_seconds(5))
-
         kafka_consumer.set_start_from_earliest()
         ds = env.add_source(kafka_consumer).assign_timestamps_and_watermarks(watermark_strategy)
 
